@@ -31,6 +31,7 @@ type CallCommand struct {
 	cmd         *cobra.Command
 	opts        *GlobalOptions
 	headers     []string
+	userAgent   string
 	addr        string
 	rcli        *grpcreflect.Client
 	stub        grpcdynamic.Stub
@@ -54,6 +55,7 @@ echo '{"message": "hello"}' | grpcurl call localhost:8888 test.Test.Echo
 	}
 	c.cmd.RunE = c.Run
 	c.cmd.Flags().StringArrayVarP(&c.headers, "header", "H", nil, "header")
+	c.cmd.Flags().StringVarP(&c.userAgent, "user-agent", "U", "", "user-agent")
 	return c
 }
 
@@ -65,7 +67,7 @@ func (c *CallCommand) Run(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
 
 	c.addr = args[0]
-	conn, err := NewGRPCConnection(ctx, c.addr, c.opts.Insecure)
+	conn, err := NewGRPCConnection(ctx, c.addr, c.userAgent, c.opts.Insecure)
 	if err != nil {
 		return err
 	}
